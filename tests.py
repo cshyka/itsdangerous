@@ -307,12 +307,14 @@ class URLSafeSerializerMixin(object):
         s = idmod.URLSafeSerializer('aha!')
         self.assertRaises(idmod.BadPayload, s.load_payload, b'kZ4m3du844lIN')
 
+
 class PickleSerializerMixin(object):
 
     def make_serializer(self, *args, **kwargs):
         kwargs.pop('serializer_kwargs', '')
         kwargs.setdefault('serializer', pickle)
         return super(PickleSerializerMixin, self).make_serializer(*args, **kwargs)
+
 
 class SpySerializer:
     def __init__(self):
@@ -323,7 +325,7 @@ class SpySerializer:
         return {"message": "arguments forwarded"}
 
     def dumps(self, data, *args, **kwargs):
-        return b"fake_serialized_btypes"
+        return b"fake_serialized_bytes"
 
 
 class URLSafeSerializerTestCase(URLSafeSerializerMixin, SerializerTestCase):
@@ -343,7 +345,6 @@ class URLSafeSerializerTestCase(URLSafeSerializerMixin, SerializerTestCase):
         spy = SpySerializer()
         s.load_payload(b"fake_payload_bytes", serializer=spy)
         assert spy.was_called is True
-
 
 
 class URLSafeTimedSerializerTestCase(URLSafeSerializerMixin, TimedSerializerTestCase):
