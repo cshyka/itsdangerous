@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import json
 import time
 import pickle
 import pytest
@@ -315,8 +316,35 @@ class PickleSerializerMixin(object):
         return super(PickleSerializerMixin, self).make_serializer(*args, **kwargs)
 
 
+class SpySerializer:
+    def __init__(self):
+        self.was_called = False
+
+    def loads(self, payload, *args, **kwargs):
+        self.was_called = True
+        return {"message": "arguments forwarded"}
+
+    def dumps(self, data, *args, **kwargs):
+        return b"fake_serialized_bytes"
+
+
 class URLSafeSerializerTestCase(URLSafeSerializerMixin, SerializerTestCase):
     serializer_class = idmod.URLSafeSerializer
+
+    def test_load_payload_accepts_serializer_argument(self):
+        s = self.serializer_class("test-secret")
+        payload = s.dump_payload({"message": "hello"})
+        assert (
+            s.load_payload(payload)
+            == s.load_payload(payload, serializer=json)
+            == {"message": "hello"}
+        )
+
+    def test_child_load_payload_forwards_serializer_to_parent(self):
+        s = self.serializer_class("test-secret")
+        spy = SpySerializer()
+        s.load_payload(b"fake_payload_bytes", serializer=spy)
+        assert spy.was_called is True
 
 
 class URLSafeTimedSerializerTestCase(URLSafeSerializerMixin, TimedSerializerTestCase):

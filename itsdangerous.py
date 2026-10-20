@@ -847,7 +847,7 @@ class URLSafeSerializerMixin(object):
     the string so that it can safely be placed in a URL.
     """
 
-    def load_payload(self, payload):
+    def load_payload(self, payload, *args, **kwargs):
         decompress = False
         if payload.startswith(b'.'):
             payload = payload[1:]
@@ -863,7 +863,7 @@ class URLSafeSerializerMixin(object):
             except Exception as e:
                 raise BadPayload('Could not zlib decompress the payload before '
                     'decoding the payload', original_error=e)
-        return super(URLSafeSerializerMixin, self).load_payload(json)
+        return super(URLSafeSerializerMixin, self).load_payload(json, *args, **kwargs)
 
     def dump_payload(self, obj):
         json = super(URLSafeSerializerMixin, self).dump_payload(obj)
