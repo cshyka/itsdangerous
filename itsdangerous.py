@@ -892,4 +892,3 @@ class URLSafeTimedSerializer(URLSafeSerializerMixin, TimedSerializer):
     alphabet as well as ``'_'``, ``'-'`` and ``'.'``.
     """
     default_serializer = _CompactJSON
-
